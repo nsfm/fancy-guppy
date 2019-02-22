@@ -1,17 +1,16 @@
 'use strict';
 
-const { Endpoint, Roles } = require('fancy-guppy');
+const Endpoint = require('fancy-guppy/endpoint.js');
 
 class PostLink extends Endpoint {
   constructor(server) {
-    this.config = {
+    const config = {
       method: 'post',
       path: '/links',
-      priority: 'aaba',
       scopes: []
     };
 
-    this.super(server, this.config);
+    super(server, config);
   }
 
   endpoint(req, res, next) {
@@ -19,4 +18,4 @@ class PostLink extends Endpoint {
   }
 }
 
-module.exports = PostContent;
+module.exports = {controller: PostLink, priority: 'aaxx';

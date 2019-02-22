@@ -27,4 +27,4 @@ class GetStatic extends Endpoint {
   }
 }
 
-module.exports = GetStatic;
+module.exports = { controller: GetStatic, priority: 'aaxz' };

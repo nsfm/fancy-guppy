@@ -3,6 +3,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const controllers = require('fancy-guppy/controllers');
+
 const port = process.env.PORT || 56700;
 
 const server = express();
@@ -15,8 +17,11 @@ server.listen(port, () => {
   console.log('Listening.', port);
 });
 
-const GetStatic = require('fancy-guppy/controllers/get_static.js');
-new GetStatic(server);
+const routes = [];
+for (const { controller } of controllers) {
+  routes.push(new controller(server));
+}
+
 // We'll also serve our static content here. Anything in the project's `static` dir is assumed to be accessible.
 /*
 server.get('/a:linkId', (req, res, next) => {
@@ -44,4 +49,5 @@ server.get('/i:linkId', (req, res, next) => {
   });
 });
 */
+
 module.exports = { server };
