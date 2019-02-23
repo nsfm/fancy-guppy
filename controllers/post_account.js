@@ -3,7 +3,7 @@
 const yup = require('yup');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
-class PostLogin extends Endpoint {
+class PostAccount extends Endpoint {
   constructor(server, database) {
     const config = {
       method: 'post',
@@ -28,4 +28,4 @@ class PostLogin extends Endpoint {
   }
 }
 
-module.exports = { controller: PostLogin, priority: 'aamm' };
+module.exports = { controller: PostAccount, priority: 'aall' };

@@ -9,6 +9,7 @@ class FancyGuppy {
     this.port = 56700;
     this.controllers = [];
     this.view_engine = 'hbs';
+    this.database = undefined;
 
     // Copy the config in and override any conflicting default values.
     Object.assign(this, config);
@@ -24,7 +25,7 @@ class FancyGuppy {
     // Load routes from our controllers.
     this.active_routes = [];
     for (const { controller } of this.controllers) {
-      this.active_routes.push(new controller(this.server));
+      this.active_routes.push(new controller(this.server, this.database));
     }
 
     this.active_routes.forEach(route => {
@@ -41,15 +42,43 @@ class FancyGuppy {
 
 // Initialize the server if we're running this file directly.
 if (require.main === module) {
-  const controllers = require('fancy-guppy/controllers');
+  (async () => {
+    const importModels = require('fancy-guppy/models');
+    const Database = require('fancy-guppy/database.js');
+    const controllers = require('fancy-guppy/controllers');
 
-  const config = {
-    port: process.env.PORT || 56700,
-    controllers
-  };
+    const database_config = {
+      database: 'guppy',
+      username: 'guppy',
+      password: 'lazy_guppy',
+      host: '10.0.0.10',
+      dialect: 'mysql',
+      port: undefined,
+      logging: false,
+      pool: { max: 5, idle: 30000, acquire: 60000 },
+      operatorsAliases: false
+    };
 
-  const server = new FancyGuppy(config);
-  server.listen();
+    const database = new Database(database_config);
+    const models = await importModels(database);
+
+    // Synchronize our models to the database before we begin.
+    try {
+      console.log('Synchronizing database...');
+      await database.sync();
+    } catch (err) {
+      console.log('Failed to synchronize database.' + err.toString());
+    }
+
+    const guppy_config = {
+      port: process.env.PORT || 56700,
+      controllers,
+      database
+    };
+
+    const server = new FancyGuppy(guppy_config);
+    server.listen();
+  })();
 }
 
 // We'll also export FancyGuppy in case we want to start servers from another module.

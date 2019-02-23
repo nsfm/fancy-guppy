@@ -34,14 +34,16 @@ class Endpoint {
     return next();
   }
 
-  constructor(server, config) {
+  constructor(server, database, config) {
     this.server = server;
+    this.database = database;
 
     // Default configuration values.
     this.method = 'get';
     this.path = '';
     this.scopes = [];
     this.request_schema = {}; // A map of fields in `req` to Yup schemas.
+    this.database = undefined;
 
     // Copy the config into this instance.
     Object.assign(this, config);

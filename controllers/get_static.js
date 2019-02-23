@@ -5,7 +5,7 @@ const { dirname } = require('path');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
 class GetStatic extends Endpoint {
-  constructor(server) {
+  constructor(server, database) {
     const config = {
       method: 'get',
       path: '/static/:filename',
@@ -13,7 +13,7 @@ class GetStatic extends Endpoint {
       scopes: []
     };
 
-    super(server, config);
+    super(server, database, config);
 
     this.static_file_root = dirname(require.resolve('fancy-guppy/static/.anchor'));
   }
