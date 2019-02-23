@@ -7,11 +7,12 @@ class PostAccount extends Endpoint {
   constructor(server, database) {
     const config = {
       method: 'post',
-      path: '/login',
+      path: '/accounts',
       scopes: [],
+      transaction: true,
       request_schema: {
         body: yup.object().shape({
-          username: yup
+          email: yup
             .string()
             .email()
             .required(),
@@ -23,8 +24,20 @@ class PostAccount extends Endpoint {
     super(server, database, config);
   }
 
-  endpoint(req, res, next) {
-    return res.send(req.body.url);
+  async endpoint(req, res, next, transaction) {
+    // TODO
+    const hashed_password = req.password;
+
+    const account = await this.models.Account.create(
+      {
+        email: req.email,
+        password: hashed_password,
+        permissions: 0
+      },
+      { transaction }
+    );
+
+    return res.json(account.get({ plain: true }));
   }
 }
 

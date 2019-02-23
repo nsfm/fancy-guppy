@@ -1,11 +1,11 @@
 'use strict';
 
 class Endpoint {
-  endpoint(req, res, next) {
+  async endpoint(req, res, next) {
     return res.json({});
   }
 
-  authenticate(req, res, next) {
+  async authenticate(req, res, next) {
     // Check for a JWT in the header.
 
     console.log('Authenticate: ', this.scopes);
@@ -34,6 +34,10 @@ class Endpoint {
     return next();
   }
 
+  async _getTransaction(req, res, next) {}
+
+  async _rollbackTransaction(req, res, next) {}
+
   constructor(server, database, config) {
     this.server = server;
     this.database = database;
@@ -42,8 +46,8 @@ class Endpoint {
     this.method = 'get';
     this.path = '';
     this.scopes = [];
+    this.transaction = false;
     this.request_schema = {}; // A map of fields in `req` to Yup schemas.
-    this.database = undefined;
 
     // Copy the config into this instance.
     Object.assign(this, config);
@@ -52,6 +56,21 @@ class Endpoint {
     if (this.scopes.length > 0) this.server.use(this.path, this.authenticate.bind(this));
     // If the endpoint accepts input, validate those fields.
     if (Object.keys(this.request_schema).length > 0) this.server.use(this.path, this.validate.bind(this));
+
+    // Wrap the endpoint in a managed transaction, if specified.
+    if (this.transaction) {
+      this.endpoint = (async (req, res, next) => {
+        try {
+          await this.database.transaction(async transaction => {
+            return this.endpoint(req, res, next, transaction);
+          });
+        } catch (err) {
+          console.log('Rolled back transaction: ' + err.toString());
+          throw err;
+        }
+      }).bind(this);
+    }
+
     // Set up the route and bind our endpoint.
     this.server[this.method](this.path, this.endpoint.bind(this));
   }
