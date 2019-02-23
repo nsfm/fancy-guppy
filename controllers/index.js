@@ -13,21 +13,21 @@ const controllers = [];
 for (const filename of controller_filenames) {
   try {
     const controller = require(`${__dirname}/${filename}`);
+
+    // A valid controller has a 'controller' and a 'priority' field.
+    if ('controller' in controller && 'priority' in controller) {
+      controllers.push(controller);
+    }
   } catch (err) {
     console.log(`Failed to load controller: ${err.toString()}`);
-  }
-
-  // A valid controller has a 'controller' and a 'priority' field.
-  if ('controller' in controller && 'priority' in controller) {
-    controllers.push(controller);
   }
 }
 
 // Sort our controller modules by priority and expose them.
 controllers.sort((a, b) => {
-  a = a.toLowerCase();
-  b = b.toLowerCase();
-  return a === b ? 0 : a < b ? 1 : -1;
+  const c = a.priority.toLowerCase();
+  const d = b.priority.toLowerCase();
+  return c > d ? 1 : c < d ? -1 : 0;
 });
 
 module.exports = controllers;

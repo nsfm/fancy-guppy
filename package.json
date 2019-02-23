@@ -12,7 +12,8 @@
     "express": "^4.16.4",
     "hbs": "^4.0.2",
     "sequelize": "^4.42.0",
-    "umzug": "^2.2.0"
+    "umzug": "^2.2.0",
+    "yup": "^0.26.10"
   },
   "devDependencies": {
     "jest": "^23.6.0",

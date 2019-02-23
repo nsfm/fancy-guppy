@@ -18,4 +18,4 @@ class PostLink extends Endpoint {
   }
 }
 
-module.exports = {controller: PostLink, priority: 'aaxx';
+module.exports = { controller: PostLink, priority: 'aaxx' };

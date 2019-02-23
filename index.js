@@ -3,51 +3,54 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const controllers = require('fancy-guppy/controllers');
+class FancyGuppy {
+  constructor(config) {
+    // Default settings.
+    this.port = 56700;
+    this.controllers = [];
+    this.view_engine = 'hbs';
 
-const port = process.env.PORT || 56700;
+    // Copy the config in and override any conflicting default values.
+    Object.assign(this, config);
 
-const server = express();
-const router = express.Router();
+    // Set up our Express server and router.
+    this.server = express();
+    this.router = express.Router();
 
-server.use(bodyParser.json());
-server.set('view engine', 'hbs');
+    this.server.use(bodyParser.json());
+    this.server.set('view engine', 'hbs');
+    this.server.disable('x-powered-by');
 
-server.listen(port, () => {
-  console.log('Listening.', port);
-});
+    // Load routes from our controllers.
+    this.active_routes = [];
+    for (const { controller } of this.controllers) {
+      this.active_routes.push(new controller(this.server));
+    }
 
-const routes = [];
-for (const { controller } of controllers) {
-  routes.push(new controller(server));
+    this.active_routes.forEach(route => {
+      console.log('Initialized route: ' + route);
+    });
+  }
+
+  listen() {
+    this.server.listen(this.port, () => {
+      console.log('Listening.', this.port);
+    });
+  }
 }
 
-// We'll also serve our static content here. Anything in the project's `static` dir is assumed to be accessible.
-/*
-server.get('/a:linkId', (req, res, next) => {
-  console.log(req.params);
-  res.redirect(301, 'https://google.com');
-});
+// Initialize the server if we're running this file directly.
+if (require.main === module) {
+  const controllers = require('fancy-guppy/controllers');
 
-server.get('/f:linkId', (req, res, next) => {
-  console.log(req.params);
-  res.download('hashedfilename', 'friendly_name.jpg', {
-    root: '/storage/guppy',
-    lastModified: false,
-    dotfiles: 'deny',
-    immutable: true
-  });
-});
+  const config = {
+    port: process.env.PORT || 56700,
+    controllers
+  };
 
-server.get('/i:linkId', (req, res, next) => {
-  console.log(req.params);
-  res.sendFile('hashedfilename', {
-    root: '/storage/guppy',
-    lastModified: false,
-    dotfiles: 'deny',
-    immutable: true
-  });
-});
-*/
+  const server = new FancyGuppy(config);
+  server.listen();
+}
 
-module.exports = { server };
+// We'll also export FancyGuppy in case we want to start servers from another module.
+module.exports = FancyGuppy;

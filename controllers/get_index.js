@@ -15,9 +15,7 @@ class GetIndex extends Endpoint {
 
   endpoint(req, res, next) {
     return res.render('index.hbs', { page_title: 'Guppy', content: 'Three Guppies' });
-
-    return res.send(req.body.url);
   }
 }
 
-module.exports = {controller: GetIndex, priority: 'aazz'};
+module.exports = { controller: GetIndex, priority: 'aazz' };
