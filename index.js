@@ -20,6 +20,7 @@ class FancyGuppy {
 
     this.server.use(bodyParser.json());
     this.server.set('view engine', 'hbs');
+    this.server.set('trust proxy', 'loopback');
     this.server.disable('x-powered-by');
 
     // Load routes from our controllers.

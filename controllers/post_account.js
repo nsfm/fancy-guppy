@@ -11,31 +11,37 @@ class PostAccount extends Endpoint {
       path: '/accounts',
       scopes: [],
       transaction: true,
-      request_schema: {
-        body: yup.object().shape({
-          username: yup
-            .string()
-            .trim()
-            .lowercase()
-            .min(3)
-            .max(36)
-            .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/)
-            .required(),
-          email: yup
-            .string()
-            .trim()
-            .lowercase()
-            .min(6)
-            .max(72)
-            .email()
-            .required(),
-          password: yup
-            .string()
-            .min(6)
-            .max(72)
-            .required()
-        })
-      }
+      authenticator: 'none',
+      request_schemas: [
+        {
+          body: yup
+            .object()
+            .noUnknown()
+            .shape({
+              username: yup
+                .string()
+                .trim()
+                .lowercase()
+                .min(3)
+                .max(36)
+                .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/)
+                .required(),
+              email: yup
+                .string()
+                .trim()
+                .lowercase()
+                .min(6)
+                .max(72)
+                .email()
+                .required(),
+              password: yup
+                .string()
+                .min(6)
+                .max(72)
+                .required()
+            })
+        }
+      ]
     };
 
     super(server, database, config);
@@ -58,7 +64,10 @@ class PostAccount extends Endpoint {
 
     if (!created) throw new Error('An account with that username or email already exists.');
 
-    return res.json(account.get({ plain: true }));
+    const response_account = account.get({ plain: true });
+    delete response_account.password;
+
+    return res.json({ account: response_account });
   }
 }
 

@@ -51,6 +51,12 @@ module.exports = {
             isInt: true,
             min: 0
           }
+        },
+        created_at: {
+          type: DataTypes.DATE
+        },
+        updated_at: {
+          type: DataTypes.DATE
         }
       },
       { comment: 'User details and login information.' }
