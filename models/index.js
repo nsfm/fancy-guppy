@@ -20,7 +20,7 @@ for (const filename of model_filenames) {
       throw new Error('Valid models export a `name` and `schema`.');
     }
   } catch (err) {
-    console.log(`Could not import ${filename}: ${err.toString()}`);
+    throw err;
   }
 }
 

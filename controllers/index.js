@@ -2,6 +2,7 @@
 
 const { basename } = require('path');
 const { readdirSync } = require('fs');
+const log = require('fancy-guppy/logging.js').child(__filename);
 
 // Retrieve each filename except for this one.
 const controller_filenames = readdirSync(__dirname).filter(file => {
@@ -19,7 +20,7 @@ for (const filename of controller_filenames) {
       controllers.push(controller);
     }
   } catch (err) {
-    console.log(`Failed to load controller: ${err.toString()}`);
+    log.error(err, 'Failed to load controller.');
   }
 }
 

@@ -30,16 +30,17 @@ class Endpoint {
   }
 
   async errorHandler(err, req, res, next) {
-    console.log(`Error from ${req.ip} (${req.hostname}): ${err}`);
+    this.log.warn(err, 'Error in route.', { path: req.path, ip: req.ip, hostname: req.hostname });
     return res.status(400).json({ err });
   }
 
-  constructor(server, database, config) {
+  constructor(server, database, logger, config) {
     // Make these handles accessible.
     this.server = server;
     this.database = database;
     this.models = database.models;
     this.Op = database.sequelize.Op;
+    this.log = logger ? logger.child(__filename) : console;
 
     // Default configuration values.
     this.method = 'get';
@@ -75,8 +76,7 @@ class Endpoint {
             return this.endpoint(req, res, next, transaction);
           });
         } catch (err) {
-          console.log(err);
-          console.log('Rolled back transaction: ' + err.toString());
+          this.log.error(err, 'Rolled back transaction in endpoint.');
           next(err);
         }
       };

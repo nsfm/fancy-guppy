@@ -4,7 +4,7 @@ const yup = require('yup');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
 class PostToken extends Endpoint {
-  constructor(server, database) {
+  constructor(server, database, logger) {
     const config = {
       method: 'post',
       path: '/tokens',
@@ -14,7 +14,8 @@ class PostToken extends Endpoint {
       request_schemas: []
     };
 
-    super(server, database, config);
+    super(server, database, logger, config);
+    this.log = logger.child(__filename);
   }
 
   async endpoint(req, res, next, transaction) {

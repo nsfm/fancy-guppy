@@ -9,6 +9,7 @@ const authenticators = {
   none: {
     request_schemas: [],
     middleware: (req, res, next) => {
+      this.log.debug('none auth with left beef');
       return next();
     }
   },
@@ -46,13 +47,14 @@ const authenticators = {
       }
     ],
     middleware: (req, res, next) => {
-      console.log('basic');
+      this.log.debug('basic auth');
       return next();
     }
   },
   token: {
     request_schemas: [],
     middleware: (req, res, next) => {
+      this.log.debug('token auth');
       return next();
     }
   }

@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
 class PostAccount extends Endpoint {
-  constructor(server, database) {
+  constructor(server, database, logger) {
     const config = {
       method: 'post',
       path: '/accounts',
@@ -44,7 +44,8 @@ class PostAccount extends Endpoint {
       ]
     };
 
-    super(server, database, config);
+    super(server, database, logger, config);
+    this.log = logger.child(__filename);
   }
 
   async endpoint(req, res, next, transaction) {
@@ -67,6 +68,7 @@ class PostAccount extends Endpoint {
     const response_account = account.get({ plain: true });
     delete response_account.password;
 
+    log.info('New account created.', { username: account.username, email: account.email, id: account.id });
     return res.json({ account: response_account });
   }
 }

@@ -3,10 +3,17 @@
 const Sequelize = require('sequelize');
 
 class Database {
-  constructor(database_config = {}, models = {}) {
-    this.sequelize = new Sequelize(database_config);
+  constructor(config = {}, models = {}) {
+    this.config = {
+      sequelize: {},
+      logger: undefined
+    };
+    Object.assign(this.config, config);
+
+    this.sequelize = new Sequelize(config.sequelize);
     this.DataTypes = Sequelize;
     this.models = {};
+    this.log = this.logger ? this.logger.child(__filename) : console;
 
     this.importModels(models);
   }
@@ -15,9 +22,9 @@ class Database {
     for (const name in models) {
       try {
         this.models[name] = models[name](this.sequelize, this.DataTypes);
-        console.log(`Imported model: ${name}`);
+        this.log.debug(`Imported model: ${name}`);
       } catch (err) {
-        console.log(`Failed to import model ${name}: ${err.toString()}`);
+        this.log.error(err, `Failed to import model: ${name}`);
       }
     }
   }

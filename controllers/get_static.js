@@ -5,7 +5,7 @@ const { dirname } = require('path');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
 class GetStatic extends Endpoint {
-  constructor(server, database) {
+  constructor(server, database, logger) {
     const config = {
       method: 'get',
       path: '/static/:filename',
@@ -13,15 +13,15 @@ class GetStatic extends Endpoint {
       scopes: []
     };
 
-    super(server, database, config);
+    super(server, database, logger, config);
+    this.log = logger.child(__filename);
 
     this.static_file_root = dirname(require.resolve('fancy-guppy/static/.anchor'));
   }
 
   endpoint(req, res, next) {
-    console.log(this);
     res.sendFile(req.params.filename, { root: this.static_file_root, dotfiles: 'ignore' }, err => {
-      console.log(err);
+      this.log.warn(err, 'Failed to access static file.');
       res.status(404).render('404', { filename: req.params.filename });
     });
   }
