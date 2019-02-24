@@ -68,7 +68,7 @@ class PostAccount extends Endpoint {
     const response_account = account.get({ plain: true });
     delete response_account.password;
 
-    log.info('New account created.', { username: account.username, email: account.email, id: account.id });
+    this.log.info('New account created.', { username: account.username, email: account.email, id: account.id });
     return res.json({ account: response_account });
   }
 }
