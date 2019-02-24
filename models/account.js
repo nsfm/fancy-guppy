@@ -18,17 +18,30 @@ module.exports = {
             isUUID: 4
           }
         },
+        username: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
+          validate: {
+            is: /^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/,
+            len: [3, 36]
+          }
+        },
         email: {
           type: DataTypes.STRING,
           allowNull: false,
           unique: true,
           validate: {
+            len: [6, 72],
             isEmail: true
           }
         },
         password: {
           type: DataTypes.STRING,
-          allowNull: false
+          allowNull: false,
+          validate: {
+            len: [6, 72]
+          }
         },
         permissions: {
           type: DataTypes.INTEGER,

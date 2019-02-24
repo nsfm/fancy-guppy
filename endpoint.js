@@ -13,20 +13,15 @@ class Endpoint {
   }
 
   async validate(req, res, next) {
-    const validations = [];
-    for (const field in this.request_schema) {
-      validations.push(
-        this.request_schema[field].validate(req[field], {
+    try {
+      for (const field in this.request_schema) {
+        req[field] = await this.request_schema[field].validate(req[field], {
           strict: false,
           abortEarly: false,
           stripUnknown: true,
           recursive: true
-        })
-      );
-    }
-
-    try {
-      await Promise.all(validations);
+        });
+      }
     } catch (err) {
       return res.status(400).json({ code: err.name, errors: err.errors });
     }
@@ -35,13 +30,14 @@ class Endpoint {
   }
 
   async errorHandler(err, req, res, next) {
-    return res.status(400).json({ code: err.name, errors: err.errors.map(error => error.message) });
+    return res.status(400).json({ err });
   }
 
   constructor(server, database, config) {
     this.server = server;
     this.database = database;
     this.models = database.models;
+    this.Op = database.sequelize.Op;
 
     // Default configuration values.
     this.method = 'get';

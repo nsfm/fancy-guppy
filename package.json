@@ -8,6 +8,7 @@
   "license": "GPL-3.0",
   "main": "index.js",
   "dependencies": {
+    "bcrypt": "^3.0.4",
     "bunyan": "^1.8.12",
     "express": "^4.16.4",
     "hbs": "^4.0.2",
