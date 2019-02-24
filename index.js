@@ -43,8 +43,8 @@ class FancyGuppy {
 // Initialize the server if we're running this file directly.
 if (require.main === module) {
   (async () => {
-    const importModels = require('fancy-guppy/models');
     const Database = require('fancy-guppy/database.js');
+    const models = require('fancy-guppy/models');
     const controllers = require('fancy-guppy/controllers');
 
     const database_config = {
@@ -59,13 +59,12 @@ if (require.main === module) {
       operatorsAliases: false
     };
 
-    const database = new Database(database_config);
-    const models = await importModels(database);
+    const database = new Database(database_config, models);
 
     // Synchronize our models to the database before we begin.
     try {
       console.log('Synchronizing database...');
-      await database.sequelize.sync();
+      await database.sequelize.sync({ force: true });
     } catch (err) {
       console.log('Failed to synchronize database.' + err.toString());
     }
