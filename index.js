@@ -65,7 +65,7 @@ if (require.main === module) {
     // Synchronize our models to the database before we begin.
     try {
       console.log('Synchronizing database...');
-      await database.sync();
+      await database.sequelize.sync();
     } catch (err) {
       console.log('Failed to synchronize database.' + err.toString());
     }

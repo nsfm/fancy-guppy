@@ -14,7 +14,7 @@ async function importModels(database) {
   for (const filename of model_filenames) {
     try {
       const model_details = require(`${__dirname}/${filename}`);
-      models[model_details.name] = model_details.schema(database.db, database.DataTypes);
+      models[model_details.name] = model_details.schema(database.sequelize, database.DataTypes);
     } catch (err) {
       console.log(`Failed to import model ${filename}: ${err.toString()}`);
     }

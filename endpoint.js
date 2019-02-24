@@ -34,13 +34,14 @@ class Endpoint {
     return next();
   }
 
-  async _getTransaction(req, res, next) {}
-
-  async _rollbackTransaction(req, res, next) {}
+  async errorHandler(err, req, res, next) {
+    return res.status(400).json({ code: err.name, errors: err.errors.map(error => error.message) });
+  }
 
   constructor(server, database, config) {
     this.server = server;
     this.database = database;
+    this.models = database.models;
 
     // Default configuration values.
     this.method = 'get';
@@ -52,27 +53,31 @@ class Endpoint {
     // Copy the config into this instance.
     Object.assign(this, config);
 
+    // Set up the route-specific error handler.
+    this.server.use(this.path, this.errorHandler.bind(this));
+
     // If any scopes were defined we'll need to authenticate and see which scopes the token holder has.
     if (this.scopes.length > 0) this.server.use(this.path, this.authenticate.bind(this));
     // If the endpoint accepts input, validate those fields.
     if (Object.keys(this.request_schema).length > 0) this.server.use(this.path, this.validate.bind(this));
 
-    // Wrap the endpoint in a managed transaction, if specified.
+    // Wrap the endpoint in a managed transaction, if necessary.
+    let wrapped_endpoint = this.endpoint;
     if (this.transaction) {
-      this.endpoint = (async (req, res, next) => {
+      wrapped_endpoint = async (req, res, next) => {
         try {
-          await this.database.transaction(async transaction => {
+          await this.database.sequelize.transaction(async transaction => {
             return this.endpoint(req, res, next, transaction);
           });
         } catch (err) {
           console.log('Rolled back transaction: ' + err.toString());
-          throw err;
+          next(err);
         }
-      }).bind(this);
+      };
     }
 
-    // Set up the route and bind our endpoint.
-    this.server[this.method](this.path, this.endpoint.bind(this));
+    // Enable the route and bind our endpoint.
+    this.server[this.method](this.path, wrapped_endpoint.bind(this));
   }
 
   toString() {

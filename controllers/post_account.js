@@ -26,11 +26,11 @@ class PostAccount extends Endpoint {
 
   async endpoint(req, res, next, transaction) {
     // TODO
-    const hashed_password = req.password;
+    const hashed_password = req.body.password;
 
     const account = await this.models.Account.create(
       {
-        email: req.email,
+        email: req.body.email,
         password: hashed_password,
         permissions: 0
       },
