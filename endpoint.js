@@ -15,7 +15,6 @@ class Endpoint {
           const results = await request_schema[field].validate(req[field], {
             strict: false,
             abortEarly: false,
-            stripUnknown: true,
             recursive: true
           });
           // Merge the results of the sanitization into the request field.
@@ -23,6 +22,7 @@ class Endpoint {
         }
       }
     } catch (err) {
+      this.log.debug(err);
       return res.status(400).json({ code: err.name, errors: err.errors });
     }
 
@@ -55,7 +55,7 @@ class Endpoint {
 
     // Make sure the authenticator is valid and prepare to validate the request for it.
     if (!this.authenticator in authenticators) throw new Error(`Unknown authenticator: ${this.authenticator}`);
-    this.request_schemas.concat(authenticators[this.authenticator].request_schemas);
+    this.request_schemas = this.request_schemas.concat(authenticators[this.authenticator].request_schemas);
 
     // Set up the route-specific error handler.
     this.server.use(this.path, this.errorHandler.bind(this));

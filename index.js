@@ -82,7 +82,7 @@ if (require.main === module) {
     try {
       // TODO Proper migrations once the models reach a usable state.
       this.log.debug('Synchronizing database...');
-      await database.sequelize.sync({ force: true });
+      await database.sequelize.sync({ force: false });
     } catch (err) {
       this.log.error(err, 'Failed to synchronize database.');
       process.exit(-2);

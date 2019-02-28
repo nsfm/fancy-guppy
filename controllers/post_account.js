@@ -14,32 +14,29 @@ class PostAccount extends Endpoint {
       authenticator: 'none',
       request_schemas: [
         {
-          body: yup
-            .object()
-            .noUnknown()
-            .shape({
-              username: yup
-                .string()
-                .trim()
-                .lowercase()
-                .min(3)
-                .max(36)
-                .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/)
-                .required(),
-              email: yup
-                .string()
-                .trim()
-                .lowercase()
-                .min(6)
-                .max(72)
-                .email()
-                .required(),
-              password: yup
-                .string()
-                .min(6)
-                .max(72)
-                .required()
-            })
+          body: yup.object().shape({
+            username: yup
+              .string()
+              .trim()
+              .lowercase()
+              .min(3)
+              .max(36)
+              .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/)
+              .required(),
+            email: yup
+              .string()
+              .trim()
+              .lowercase()
+              .min(6)
+              .max(72)
+              .email()
+              .required(),
+            password: yup
+              .string()
+              .min(6)
+              .max(72)
+              .required()
+          })
         }
       ]
     };

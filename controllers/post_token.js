@@ -58,13 +58,13 @@ class PostToken extends Endpoint {
 
     // Create a signature from the token body.
     token.signature = createHmac('sha256', this.signing_key)
-      .update(token.header + JSON.stringify(token.body))
+      .update(token.header + token.payload)
       .digest('hex');
 
-    // Base64 encode each field and join them into the final JWT.
+    // Base64 encode then url encode each field and join them into the final JWT.
     const jwt = [];
     for (const field in token) {
-      jwt.push(Buffer.from(token[field]).toString('base64'));
+      jwt.push(encodeURIComponent(Buffer.from(token[field]).toString('base64')));
     }
 
     return res.json({ token: jwt.join('.') });
