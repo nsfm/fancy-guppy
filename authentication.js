@@ -4,7 +4,6 @@ const yup = require('yup');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const { createHmac, timingSafeEqual } = require('crypto');
-const log = require('fancy-guppy/logging.js').child(__filename);
 
 // TODO Pull together JWT signing/parsing resources.
 
@@ -17,7 +16,6 @@ const authenticators = {
   none: {
     request_schemas: [],
     middleware: async function(req, res, next) {
-      log.debug('none auth with left beef');
       return next();
     }
   },

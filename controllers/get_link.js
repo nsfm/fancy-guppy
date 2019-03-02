@@ -10,7 +10,7 @@ class GetLink extends Endpoint {
       method: 'get',
       path: '/l/:short_url',
       scopes: [],
-      transaction: true,
+      transaction: false,
       authenticator: 'none',
       request_schemas: []
     };
@@ -22,7 +22,10 @@ class GetLink extends Endpoint {
   async endpoint(req, res, next, transaction) {
     const link = await this.models.Link.findOne({ where: { short_url: req.params.short_url } });
 
-    if (!link) return res.status(404).render('404');
+    if (!link) {
+      this.log.warn('Failed to find specified link: ' + req.params.short_url);
+      return res.status(404).render('404');
+    }
 
     // Provide the link ID in the response header.
     res.set({

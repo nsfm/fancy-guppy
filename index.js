@@ -39,7 +39,7 @@ class FancyGuppy {
 
   listen() {
     this.server.listen(this.port, () => {
-      this.log.info('Listening.', { port: this.port });
+      this.log.info('Listening.', { port: this.port, routes: this.router.stack });
     });
   }
 }

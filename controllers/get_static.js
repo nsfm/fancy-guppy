@@ -9,8 +9,9 @@ class GetStatic extends Endpoint {
     const config = {
       method: 'get',
       path: '/static/:filename',
-      priority: 'aaaa',
-      scopes: []
+      scopes: [],
+      authenticator: 'none',
+      request_schemas: []
     };
 
     super(server, database, logger, config);

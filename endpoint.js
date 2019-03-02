@@ -8,6 +8,7 @@ class Endpoint {
   }
 
   async validate(req, res, next) {
+    console.log(req.path);
     try {
       for (const request_schema of this.request_schemas) {
         for (const field in request_schema) {
@@ -57,7 +58,7 @@ class Endpoint {
     if (!this.authenticator in authenticators) throw new Error(`Unknown authenticator: ${this.authenticator}`);
     this.request_schemas = this.request_schemas.concat(authenticators[this.authenticator].request_schemas);
 
-    // Set up the route-specific error handler.
+    // Set up the route-specific error handleri.
     this.server.use(this.path, this.errorHandler.bind(this));
 
     // Validate the request.

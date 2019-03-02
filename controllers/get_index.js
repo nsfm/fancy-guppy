@@ -7,7 +7,8 @@ class GetIndex extends Endpoint {
     const config = {
       method: 'get',
       path: '/',
-      scopes: []
+      scopes: [],
+      authenticator: 'none'
     };
 
     super(server, database, logger, config);
