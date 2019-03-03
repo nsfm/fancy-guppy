@@ -2,13 +2,14 @@
 
 const { authenticators } = require('fancy-guppy/authentication.js');
 
+// This class provides a common interface to each endpoint so they can be configured consistently and
+// automatically.
 class Endpoint {
   async endpoint(req, res, next) {
     return res.json({});
   }
 
   async validate(req, res, next) {
-    console.log(req.path);
     try {
       for (const request_schema of this.request_schemas) {
         for (const field in request_schema) {
@@ -50,6 +51,7 @@ class Endpoint {
     this.transaction = false;
     this.authenticator = 'none';
     this.request_schemas = []; // An array of maps to fields in the request object to be validated.
+    this.upload_middleware = null; // A Multer configuration.
 
     // Copy the config into this instance.
     Object.assign(this, config);
@@ -83,8 +85,12 @@ class Endpoint {
       };
     }
 
-    // Enable the route and bind our endpoint.
-    this.server[this.method](this.path, wrapped_endpoint.bind(this));
+    // Enable the route and bind our endpoint, including upload middleware if applicable.
+    if (typeof this.upload_middleware === 'function') {
+      this.server[this.method](this.path, this.upload_middleware, wrapped_endpoint.bind(this));
+    } else {
+      this.server[this.method](this.path, wrapped_endpoint.bind(this));
+    }
   }
 
   toString() {
