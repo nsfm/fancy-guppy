@@ -10,7 +10,7 @@ class GetImage extends Endpoint {
   constructor(server, database, logger) {
     const config = {
       method: 'get',
-      path: '/i/:img_code', //'/im/:img_code.:fomat'],
+      path: ['/i/:img_code', '/i/:img_code.:fomat'],
       scopes: [],
       transaction: false,
       authenticator: 'none',
@@ -97,10 +97,11 @@ class GetImage extends Endpoint {
   }
 
   async endpoint(req, res, next) {
-    //const image = await this.models.Image.findOne({ where: { short_url: req.params.img_code } });
+    const image = await this.models.Image.findOne({ where: { short_url: req.params.img_code } });
 
-    //if (!image) return res.status(404).render('404');
-    const raw_stream = fs.createReadStream(require.resolve('fancy-guppy/static/test.jpg'));
+    if (!image) return res.status(404).render('404', { filename: req.params.img_code });
+
+    const raw_stream = fs.createReadStream('/tmp/fancy_guppy/' + image.id);
 
     raw_stream.on('error', err => {
       this.log.warn('Failed to access file.', { err });

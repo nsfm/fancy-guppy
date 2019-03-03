@@ -56,8 +56,6 @@ class PostImage extends Endpoint {
   }
 
   async endpoint(req, res, next, transaction) {
-    console.log(req.files);
-
     // TODO: Ratelimiting on the processing_queue.
     const processing_queue = [];
     for (const file of req.files.image) {
