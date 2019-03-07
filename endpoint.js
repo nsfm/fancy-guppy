@@ -57,7 +57,7 @@ class Endpoint {
     Object.assign(this, config);
 
     // Make sure the authenticator is valid and prepare to validate the request for it.
-    if (!this.authenticator in authenticators) throw new Error(`Unknown authenticator: ${this.authenticator}`);
+    if (!(this.authenticator in authenticators)) throw new Error(`Unknown authenticator: ${this.authenticator}`);
     this.request_schemas = this.request_schemas.concat(authenticators[this.authenticator].request_schemas);
 
     // Set up the route-specific error handleri.

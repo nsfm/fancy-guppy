@@ -16,7 +16,7 @@ class Local extends Storage {
     this.path = config.path;
 
     // If there's no trailing slash, we can include one.
-    if (path[path.length - 1] !== '/') this.path += '/';
+    if (this.path[this.path.length - 1] !== '/') this.path += '/';
   }
 
   async _storeFile(stream) {

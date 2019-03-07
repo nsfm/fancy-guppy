@@ -21,7 +21,7 @@ class PostAccount extends Endpoint {
               .lowercase()
               .min(3)
               .max(36)
-              .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/)
+              .matches(/^(?=.{3,36}$)[a-z0-9_\-#@.$!^?{}~|[\]]+$/)
               .required(),
             email: yup
               .string()

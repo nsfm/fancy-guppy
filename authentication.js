@@ -34,7 +34,7 @@ const authenticators = {
             .lowercase()
             .min(3)
             .max(36)
-            .matches(/^(?=.{3,36}$)[a-z0-9\_\-\#\@\.\$\!\^\?\{\}\~\|\[\]]+$/),
+            .matches(/^(?=.{3,36}$)[a-z0-9_\-#@.$!^?{}~|[\]]+$/),
           email: yup.string().email()
         })
       }
@@ -77,7 +77,7 @@ const authenticators = {
           authorization: yup
             .string()
             .required()
-            .matches(/^Bearer [a-zA-Z0-9\%]+?\.[a-zA-Z0-9\%]+?\.([a-zA-Z0-9\%]+)?$/)
+            .matches(/^Bearer [a-zA-Z0-9%]+?\.[a-zA-Z0-9%]+?\.([a-zA-Z0-9%]+)?$/)
         })
       }
     ],

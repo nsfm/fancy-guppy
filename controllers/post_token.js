@@ -1,7 +1,6 @@
 'use strict';
 
 const { createHash, createHmac } = require('crypto');
-const yup = require('yup');
 const moment = require('moment');
 const Endpoint = require('fancy-guppy/endpoint.js');
 

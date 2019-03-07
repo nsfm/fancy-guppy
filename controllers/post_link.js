@@ -32,7 +32,7 @@ class PostLink extends Endpoint {
         // Seed the RNG with the url for predictable shortenings.
         const random = generator.create(url);
         const characters = 'abcdefghijklmnopqrstuvwxyz1234567890';
-        let length = 8;
+        const length = 8;
         let string = '';
         for (let i = 0; i < 8; i++) {
           string += characters[random.range(characters.length - 1)];

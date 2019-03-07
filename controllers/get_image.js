@@ -3,14 +3,40 @@
 const fs = require('fs');
 const sharp = require('sharp');
 const yup = require('yup');
-const generator = require('random-seed');
 const Endpoint = require('fancy-guppy/endpoint.js');
 
 class GetImage extends Endpoint {
   constructor(server, database, logger) {
+    // We'll be exposing some preset filter configurations for progressive image loading.
+    // These will consist of collections of query params that we can use to override the
+    // request params. TODO - the size should be related to the original image size, ie, 1/10, 1/3, 1/1
+    const presets = {
+      small: {
+        width: 75
+      },
+      medium: {
+        width: 350
+      },
+      large: {
+        width: 1280
+      },
+      ['small-blur']: {
+        width: 75,
+        blur: 10
+      },
+      ['medium-blur']: {
+        width: 350,
+        blur: 6
+      },
+      ['large-blur']: {
+        width: 1280,
+        blur: 3
+      }
+    };
+
     const config = {
       method: 'get',
-      path: ['/i/:img_code', '/i/:img_code.:fomat'],
+      path: ['/i/:img_code/:preset?', '/i/:img_code.:fomat/:preset?'],
       scopes: [],
       transaction: false,
       authenticator: 'none',
@@ -64,7 +90,7 @@ class GetImage extends Endpoint {
             tint: yup
               .string()
               .matches(
-                /^(#[a-f0-9]{6}|black|green|silver|gray|olive|white|yellow|maroon|navy|red|blue|purple|teal|fuchsia|aqua)$/i
+                /^(#[a-f0-9]{6}|black|green|silver|gray|white|yellow|maroon|navy|red|blue|purple|teal|fuchsia|aqua)$/i
               ),
             linear: yup
               .number()
@@ -86,7 +112,8 @@ class GetImage extends Endpoint {
           }),
           params: yup.object().shape({
             img_code: yup.string().required(),
-            format: yup.string().oneOf(['png', 'jpg', 'jpeg', 'webp', 'raw'])
+            format: yup.string().oneOf(['png', 'jpg', 'jpeg', 'webp', 'raw']),
+            preset: yup.string().oneOf(Object.keys(presets))
           })
         }
       ]
@@ -142,7 +169,6 @@ class GetImage extends Endpoint {
 
     // Apply the pre-resize filters now.
     for (const filter of simple_filters_pre) {
-      if (req.query[filter]) console.log('applying ' + filter);
       if (req.query[filter]) transformer[filter](req.query[filter]);
     }
 
@@ -155,11 +181,13 @@ class GetImage extends Endpoint {
     if (req.query.width) resize_options.width = req.query.width;
 
     let size_increasing = false;
+    let dimension;
+    let scaling_factor = 1.0;
     const original_size = metadata.width * metadata.height;
     switch (Object.keys(resize_options).length) {
       case 1:
-        const dimension = Object.keys(resize_options)[0];
-        const scaling_factor = resize_options[dimension] / metadata[dimension];
+        dimension = Object.keys(resize_options)[0];
+        scaling_factor = resize_options[dimension] / metadata[dimension];
         size_increasing = original_size < metadata.width * scaling_factor * metadata.height * scaling_factor;
         break;
       case 2:
@@ -169,7 +197,6 @@ class GetImage extends Endpoint {
         size_increasing = false;
     }
 
-    console.log(size_increasing);
     if (size_increasing) {
       for (const filter of simple_filters_quality) {
         if (req.query[filter]) transformer[filter](req.query[filter]);
@@ -178,8 +205,8 @@ class GetImage extends Endpoint {
 
     if (Object.keys(resize_options).length) {
       // Set up some additional default options.
-      if (!'fit' in resize_options) resize_options.fit = sharp.fit.cover;
-      if (!'position' in resize_options) resize_options.position = sharp.strategy.attention;
+      if (!('fit' in resize_options)) resize_options.fit = sharp.fit.cover;
+      if (!('position' in resize_options)) resize_options.position = sharp.strategy.attention;
       transformer.resize(resize_options);
     }
 
