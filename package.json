@@ -11,6 +11,7 @@
     "bcrypt": "^3.0.4",
     "bunyan": "^1.8.12",
     "bunyan-syslog": "^0.3.2",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "hbs": "^4.0.2",
     "multer": "^1.4.1",
@@ -23,11 +24,16 @@
     "yup": "^0.26.10"
   },
   "devDependencies": {
+    "braintree-jsdoc-template": "^3.3.0",
+    "eslint": "^5.15.1",
     "jest": "^23.6.0",
+    "jsdoc": "^3.5.5",
     "nodemon": "^1.18.9"
   },
   "scripts": {
     "prestart": "rm -f node_modules/fancy-guppy; ln -s .. node_modules/fancy-guppy;",
-    "start": "nodemon index.js | bunyan"
+    "debug": "./node_modules/.bin/nodemon index.js | bunyan",
+    "lint": "./node_modules/.bin/eslint -c .eslintrc.json -f checkstyle ./ > eslint.xml; exit 0;",
+    "doc": "./node_modules/.bin/jsdoc -c .jsdocrc.json"
   }
 }

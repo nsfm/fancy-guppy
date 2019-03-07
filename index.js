@@ -2,6 +2,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 class FancyGuppy {
   constructor(config) {
@@ -24,6 +25,7 @@ class FancyGuppy {
     this.router = express.Router();
 
     this.server.use(bodyParser.json());
+    this.server.use(cors());
     this.server.set('view engine', 'hbs');
     this.server.disable('x-powered-by');
     if (this.behind_proxy) this.server.set('trust proxy', 'loopback');
@@ -52,7 +54,7 @@ if (require.main === module) {
     const controllers = require('fancy-guppy/controllers');
     const logger = require('fancy-guppy/logging.js');
 
-    this.log = logger.child(__filename);
+    const log = logger.child(__filename);
 
     const database_config = {
       sequelize: {
@@ -69,22 +71,22 @@ if (require.main === module) {
       logger
     };
 
-    this.log.debug('Connecting to database...');
+    log.debug('Connecting to database...');
     let database;
     try {
       database = new Database(database_config, models);
     } catch (err) {
-      this.log.error(err, 'Failed to connect to database.');
+      log.error(err, 'Failed to connect to database.');
       process.exit(-1);
     }
 
     // Synchronize our models to the database before we begin.
     try {
       // TODO Proper migrations once the models reach a usable state.
-      this.log.debug('Synchronizing database...');
+      log.debug('Synchronizing database...');
       await database.sequelize.sync({ force: false });
     } catch (err) {
-      this.log.error(err, 'Failed to synchronize database.');
+      log.error(err, 'Failed to synchronize database.');
       process.exit(-2);
     }
 

@@ -1,0 +1,24 @@
+{
+  "recurseDepth": 50,
+  "source": {
+    "include": ["."],
+    "exclude": ["node_modules", "frontend"],
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc","closure"]
+  },
+  "templates": {
+    "referenceTitle": "Fancy Guppy",
+    "cleverLinks": true,
+    "monospaceLinks": true
+  },
+  "opts": {
+    "recurse": true,
+    "destination": "./jsdoc/",
+    "template": "node_modules/braintree-jsdoc-template"
+  }
+}
