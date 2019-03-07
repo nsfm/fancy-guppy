@@ -33,6 +33,7 @@
   "scripts": {
     "prestart": "rm -f node_modules/fancy-guppy; ln -s .. node_modules/fancy-guppy;",
     "debug": "./node_modules/.bin/nodemon index.js | bunyan",
+    "start": "node index.js",
     "lint": "./node_modules/.bin/eslint -c .eslintrc.json -f checkstyle ./ > eslint.xml; exit 0;",
     "doc": "./node_modules/.bin/jsdoc -c .jsdocrc.json"
   }

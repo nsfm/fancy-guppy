@@ -8,14 +8,16 @@ const { createHmac, timingSafeEqual } = require('crypto');
 // TODO Pull together JWT signing/parsing resources.
 
 const signing_key = process.env.SIGNING_KEY;
-if (!signing_key) throw new Error('Cannot validate tokens without SIGNING_KEY set.');
+if (!signing_key) {
+  throw new Error('Cannot validate tokens without SIGNING_KEY set.');
+}
 
 // The authenticator will be bound to its Endpoint when it's called. Its request_schema will be
 // validated in conjunction with any request_schema defined on the Endpoint itself.
 const authenticators = {
   none: {
     request_schemas: [],
-    middleware: async function(req, res, next) {
+    middleware: async (req, res, next) => {
       return next();
     }
   },
@@ -39,7 +41,7 @@ const authenticators = {
         })
       }
     ],
-    middleware: async function(req, res, next) {
+    middleware: async (req, res, next) => {
       try {
         // We allow users to sign in either by email or username.
         let condition;
@@ -53,11 +55,15 @@ const authenticators = {
 
         // Find the appropriate account.
         const account = await this.models.Account.findOne({ where: condition });
-        if (!account) throw new Error('No such account.');
+        if (!account) {
+          throw new Error('No such account.');
+        }
 
         // Compare the password given with the hash on the account.
         const matched = await bcrypt.compare(req.body.password, account.password);
-        if (!matched) throw new Error('Incorrect password.');
+        if (!matched) {
+          throw new Error('Incorrect password.');
+        }
 
         // Attach the account to the request in case we need it again.
         req.data = {
@@ -81,7 +87,7 @@ const authenticators = {
         })
       }
     ],
-    middleware: async function(req, res, next) {
+    middleware: async (req, res, next) => {
       try {
         const [header, payload, signature] = req.headers.authorization.split(' ')[1].split('.');
 
@@ -102,7 +108,9 @@ const authenticators = {
           .update(jwt.header.toString() + jwt.payload.toString())
           .digest('hex');
 
-        if (!timingSafeEqual(jwt.signature, Buffer.from(authentic_signature))) throw new Error('Invalid signature.');
+        if (!timingSafeEqual(jwt.signature, Buffer.from(authentic_signature))) {
+          throw new Error('Invalid token signature.');
+        }
 
         // Parse and validate the payload. Check the basic timestamp validities.
         jwt.payload = JSON.parse(jwt.payload.toString());
@@ -140,7 +148,9 @@ const authenticators = {
           this.models.Account.findOne({ where: { id: jwt.payload.id } })
         ]);
 
-        if (token.revoked) throw new Error('Token was revoked.');
+        if (token.revoked) {
+          throw new Error('Token was revoked.');
+        }
 
         // Attach the account to the request in case we need it again.
         req.data = {

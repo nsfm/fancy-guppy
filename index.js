@@ -4,7 +4,22 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+/**
+ *  The Fancy Guppy class pulls together configuration for the various other modules and initializes the request
+ *  server.
+ */
 class FancyGuppy {
+  /**
+   * Prepares the Express server and router, injects Express plugins, and loads endpoints as routes.
+   *
+   * @param {object} config Basic configuration values.
+   * @param {integer=} config.port The port to host the Fancy Guppy server on. Defaults to 56700.
+   * @param {object[]} config.controllers An array of classes extending the Fancy Guppy Endpoint class.
+   * @param {string=} config.view_engine The Express rendering engine to use for static templates. Defaults to 'hbs'.
+   * @param {object} config.database. An instantiated Fancy Guppy Database.
+   * @param {object} config.logger An instantiated Fancy Guppy Logger.
+   * @param {boolean=} behind_proxy Defaults to true. When true, respect X-Forwarded-By headers.
+   */
   constructor(config) {
     // Default settings.
     this.port = 56700;
@@ -28,7 +43,9 @@ class FancyGuppy {
     this.server.use(cors());
     this.server.set('view engine', 'hbs');
     this.server.disable('x-powered-by');
-    if (this.behind_proxy) this.server.set('trust proxy', 'loopback');
+    if (this.behind_proxy) {
+      this.server.set('trust proxy', 'loopback');
+    }
 
     // Load routes from our controllers.
     this.active_routes = [];
@@ -39,6 +56,11 @@ class FancyGuppy {
     }
   }
 
+  /**
+   *  Call listen to start the Fancy Guppy server.
+   *
+   *  @returns {null} Returns nothing.
+   */
   listen() {
     this.server.listen(this.port, () => {
       this.log.info('Listening.', { port: this.port, routes: this.router.stack });
@@ -46,7 +68,7 @@ class FancyGuppy {
   }
 }
 
-// Initialize the server if we're running this file directly.
+// If we're starting this application directly from this file, start up a default Fancy Guppy instance.
 if (require.main === module) {
   (async () => {
     const Database = require('fancy-guppy/database.js');

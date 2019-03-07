@@ -141,7 +141,7 @@ class Endpoint {
    * @returns {string} No value.
    */
   toString() {
-    return JSON.stringify()`${this.method} ${this.path} (${this.scopes})`;
+    return JSON.stringify({ method: this.method, path: this.path, scopes: this.scopes });
   }
 }
 
