@@ -1,0 +1,8 @@
+{
+  "database": "my_database_name",
+  "username": "my_database_user",
+  "password": "my_database_password",
+  "host": "my_database_host",
+  "port": 3306,
+  "pool": { "max": 5, "idle": 30000, "acquire": 60000 }
+}

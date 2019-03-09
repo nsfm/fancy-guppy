@@ -78,20 +78,29 @@ if (require.main === module) {
 
     const log = logger.child(__filename);
 
+    // Prepare some default configuration values.
     const database_config = {
       sequelize: {
-        database: 'guppy',
-        username: 'guppy',
-        password: 'lazy_guppy',
-        host: '10.0.0.10',
+        database: process.env.FANCY_GUPPY_DATABASE,
+        username: process.env.FANCY_GUPPY_USERNAME,
+        password: process.env.FANCY_GUPPY_PASSWORD,
+        host: process.env.FANCY_GUPPY_HOST || 'localhost',
+        port: process.env.FANCY_GUPPY_DATABASE_PORT || 3306,
         dialect: 'mysql',
-        port: undefined,
         logging: false,
         pool: { max: 5, idle: 30000, acquire: 60000 },
         operatorsAliases: false
       },
       logger
     };
+
+    // Overwrite database config settings from a local file, if available.
+    try {
+      const given_config = require('fancy-guppy/database.json');
+      Object.assign(database_config.sequelize, given_config);
+    } catch (err) {
+      log.error({ err }, 'Failed to load database config from environment.');
+    }
 
     log.debug('Connecting to database...');
     let database;
@@ -113,7 +122,7 @@ if (require.main === module) {
     }
 
     const guppy_config = {
-      port: process.env.PORT || 56700,
+      port: process.env.FANCY_GUPPY_PORT || 56700,
       controllers,
       database,
       logger

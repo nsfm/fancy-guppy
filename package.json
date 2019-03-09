@@ -35,6 +35,6 @@
     "debug": "./node_modules/.bin/nodemon index.js | bunyan",
     "start": "node index.js",
     "lint": "./node_modules/.bin/eslint -c .eslintrc.json -f checkstyle ./ > eslint.xml; exit 0;",
-    "doc": "./node_modules/.bin/jsdoc -c .jsdocrc.json"
+    "doc": "rm -f node_modules/fancy-guppy; ./node_modules/.bin/jsdoc -R README.md -c .jsdocrc.json; ln -s .. node_modules/fancy-guppy;"
   }
 }
