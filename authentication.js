@@ -7,9 +7,9 @@ const { createHmac, timingSafeEqual } = require('crypto');
 
 // TODO Pull together JWT signing/parsing resources.
 
-const signing_key = process.env.SIGNING_KEY;
+const signing_key = process.env.FANCY_GUPPY_SIGNING_KEY;
 if (!signing_key) {
-  throw new Error('Cannot validate tokens without SIGNING_KEY set.');
+  throw new Error('Cannot validate tokens without FANCY_GUPPY_SIGNING_KEY set.');
 }
 
 // The authenticator will be bound to its Endpoint when it's called. Its request_schema will be

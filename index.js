@@ -61,9 +61,15 @@ class FancyGuppy {
    *
    *  @returns {null} Returns nothing.
    */
-  listen() {
-    this.server.listen(this.port, () => {
-      this.log.info('Listening.', { port: this.port, routes: this.router.stack });
+  async listen() {
+    return new Promise((resolve, reject) => {
+      this.server.listen(this.port, err => {
+        if (err) {
+          return reject(err);
+        }
+        this.log.info('Listening.', { port: this.port, routes: this.router.stack });
+        resolve();
+      });
     });
   }
 }
@@ -71,6 +77,7 @@ class FancyGuppy {
 // If we're starting this application directly from this file, start up a default Fancy Guppy instance.
 if (require.main === module) {
   (async () => {
+    const { unlinkSync, writeFileSync } = require('fs');
     const Database = require('fancy-guppy/database.js');
     const models = require('fancy-guppy/models');
     const controllers = require('fancy-guppy/controllers');
@@ -78,7 +85,41 @@ if (require.main === module) {
 
     const log = logger.child(__filename);
 
-    // Prepare some default configuration values.
+    // Prepare default FancyGuppy configuration values.
+    const fancy_config = {
+      pid_path: process.env.FANCY_GUPPY_PID_PATH || 'server.pid',
+      port: process.env.FANCY_GUPPY_PORT || 56700
+    };
+
+    // Overwrite those config settings from a local config file, if available.
+    try {
+      const given_config = require('fancy-guppy/fancy.json');
+      Object.assign(fancy_config.sequelize, given_config);
+    } catch (err) {
+      log.error({ err }, 'Failed to load Fancy Guppy config from fancy.json');
+    }
+
+    // Set up a pidfile.
+    try {
+      unlinkSync(fancy_config.pid_path);
+    } catch (err) {
+      // This is fine.
+    }
+
+    try {
+      writeFileSync(fancy_config.pid_path, process.pid);
+    } catch (err) {
+      log.error(err, 'Failed to write pid file.');
+    }
+
+    // Set up some exit handlers to hopefully remove the pidfile if the process dies.
+    const pid_cleanup_events = ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException'];
+    for (const event of pid_cleanup_events) {
+      process.on(event, () => {
+        unlinkSync(fancy_config.pid_path);
+      });
+    }
+    // Prepare some default database configuration values.
     const database_config = {
       sequelize: {
         database: process.env.FANCY_GUPPY_DATABASE,
@@ -99,7 +140,7 @@ if (require.main === module) {
       const given_config = require('fancy-guppy/database.json');
       Object.assign(database_config.sequelize, given_config);
     } catch (err) {
-      log.error({ err }, 'Failed to load database config from environment.');
+      log.error({ err }, 'Failed to load database config from database.json');
     }
 
     log.debug('Connecting to database...');
@@ -108,7 +149,7 @@ if (require.main === module) {
       database = new Database(database_config, models);
     } catch (err) {
       log.error(err, 'Failed to connect to database.');
-      process.exit(-1);
+      process.exit(1);
     }
 
     // Synchronize our models to the database before we begin.
@@ -118,18 +159,24 @@ if (require.main === module) {
       await database.sequelize.sync({ force: false });
     } catch (err) {
       log.error(err, 'Failed to synchronize database.');
-      process.exit(-2);
+      process.exit(2);
     }
 
     const guppy_config = {
-      port: process.env.FANCY_GUPPY_PORT || 56700,
+      port: fancy_config.port,
       controllers,
       database,
       logger
     };
 
     const server = new FancyGuppy(guppy_config);
-    server.listen();
+
+    try {
+      await server.listen();
+    } catch (err) {
+      log.error(err, 'Failed to start server.');
+      process.exit(3);
+    }
   })();
 }
 

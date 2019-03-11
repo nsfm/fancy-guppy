@@ -18,8 +18,11 @@ class PostToken extends Endpoint {
     super(server, database, logger, config);
     this.log = logger.child(__filename);
 
-    this.signing_key = process.env.SIGNING_KEY;
-    if (!this.signing_key) throw new Error('Cannot issue tokens without SIGNING_KEY set.');
+    this.signing_key = process.env.FANCY_GUPPY_SIGNING_KEY;
+    if (!this.signing_key) {
+      throw new Error('Cannot issue tokens without FANCY_GUPPY_SIGNING_KEY set.');
+    }
+
     this.signing_key_hash = createHash('sha256')
       .update(this.signing_key)
       .digest('base64');
